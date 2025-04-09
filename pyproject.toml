@@ -6,5 +6,6 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "requests",
-    "python-dotenv"
+    "python-dotenv",
+    "matplotlib"
 ]
