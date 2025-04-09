@@ -125,3 +125,32 @@ def analyze_repo(repo_full_name):
     except Exception as e:
         print(f"⚠️ Error analyzing {repo_full_name}: {e}")
         return None
+
+def list_org_repos(org, include_private=True):
+    url = f"https://api.github.com/orgs/{org}/repos?per_page=100&type=all"
+    repos = []
+    while url:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        repos += response.json()
+        url = response.links.get('next', {}).get('url')
+    return [r for r in repos if include_private or not r["private"]]
+
+
+def analyze_org_repos():
+    org = os.getenv("GITHUB_ORG")
+    if not org:
+        print("⚠️ No organization name set in .env (GITHUB_ORG)")
+        return
+
+    print(f"🔍 Analyzing organization repos for: {org}")
+    repos = list_org_repos(org)
+    org_repo_data = {}
+
+    for repo in repos:
+        full_name = repo["full_name"]
+        result = analyze_repo(full_name)
+        if result:
+            org_repo_data[full_name] = result
+
+    return org_repo_data

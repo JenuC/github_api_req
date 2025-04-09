@@ -8,5 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+
+# User files
 .env
 github_repos.json
+github_org_repos.json

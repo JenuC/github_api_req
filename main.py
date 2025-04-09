@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from gather_github_data import list_repos,list_branches,get_commit_dates 
 from gather_github_data import get_repo_metadata, get_top_contributors, get_total_commits, get_total_pull_requests
 from gather_github_data import GITHUB_USER
-from gather_github_data import analyze_repo
+from gather_github_data import analyze_repo, analyze_org_repos
 # Load credentials from .env
 load_dotenv()
 
@@ -55,10 +55,6 @@ def main():
             json.dump(repo_data, f, indent=2)
         print("✅ Repo data saved to github_repos.json")
         
-        
-        
-        break
-    
     custom_repos = ["spicyfoodie/ij_macros"]
 
     for repo_full_name in custom_repos:
@@ -70,6 +66,10 @@ def main():
             print("✅ Repo data saved to github_repos.json")
 
 
+    org_repo_data = analyze_org_repos()
+    with open("github_org_repos.json", "w") as f:
+        json.dump(org_repo_data, f, indent=2)
+    print("✅ Saved organization repo data to github_org_repos.json")
 
 
 if __name__ == "__main__":
