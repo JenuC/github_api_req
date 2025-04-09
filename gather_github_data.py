@@ -92,3 +92,36 @@ def get_top_contributors(repo_full_name, top_n=3):
         contributor["login"]: contributor["contributions"]
         for contributor in response.json()
     }
+
+
+def analyze_repo(repo_full_name):
+    try:
+        print(f"📁 {repo_full_name}")
+        meta = get_repo_metadata(repo_full_name)
+        branches = list_branches(repo_full_name)
+        commit_info = get_commit_dates(repo_full_name, meta["default_branch"])
+        total_commits = get_total_commits(repo_full_name, meta["default_branch"])
+        pr_count = get_total_pull_requests(repo_full_name)
+        contributors = get_top_contributors(repo_full_name)
+
+        print(f"   🕐 First commit: {commit_info[0]}")
+        print(f"   🕓 Last commit:  {commit_info[1]}")
+        print(f"   🔢 Total commits: {total_commits}")
+        print(f"   📬 PRs: {pr_count}")
+        print(f"   🌟 Stars: {meta['stars']}, 🍴 Forks: {meta['forks']}, 🐞 Issues: {meta['open_issues']}")
+        print(f"   👥 Top contributors: {contributors}")
+
+        return {
+            "branches": branches,
+            "first_commit": commit_info[0],
+            "last_commit": commit_info[1],
+            "total_commits": total_commits,
+            "pull_requests": pr_count,
+            "stars": meta["stars"],
+            "forks": meta["forks"],
+            "open_issues": meta["open_issues"],
+            "top_contributors": contributors
+        }
+    except Exception as e:
+        print(f"⚠️ Error analyzing {repo_full_name}: {e}")
+        return None
