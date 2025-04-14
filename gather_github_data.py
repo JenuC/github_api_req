@@ -2,14 +2,25 @@
 import requests
 import os
 import re
+import json
 
 GITHUB_USER = os.getenv("GITHUB_USER")
 TOKEN = os.getenv("GITHUB_TOKEN")
+GITHUB_ORG = os.getenv("GITHUB_ORG")
 
 headers = {
     "Authorization": f"token {TOKEN}",
     "Accept": "application/vnd.github.v3+json"
 }
+
+
+def load_existing_repo_data(filepath):
+    try:
+        with open(filepath) as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+
 
 def list_repos(user, include_private=True):
     url = f"https://api.github.com/user/repos?per_page=100&affiliation=owner"
@@ -138,7 +149,7 @@ def list_org_repos(org, include_private=True):
 
 
 def analyze_org_repos():
-    org = os.getenv("GITHUB_ORG")
+    org = GITHUB_ORG
     if not org:
         print("⚠️ No organization name set in .env (GITHUB_ORG)")
         return
@@ -146,11 +157,16 @@ def analyze_org_repos():
     print(f"🔍 Analyzing organization repos for: {org}")
     repos = list_org_repos(org)
     org_repo_data = {}
+    existing_data = load_existing_repo_data('github_org_repos.json')
 
     for repo in repos:
         full_name = repo["full_name"]
-        result = analyze_repo(full_name)
-        if result:
-            org_repo_data[full_name] = result
+        if full_name in existing_data:
+            print(f"✅ Skipping already processed repo: {full_name}")
+            continue
+        else:
+            result = analyze_repo(full_name)
+            if result:
+                org_repo_data[full_name] = result
 
     return org_repo_data
